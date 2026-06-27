@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML 速查卡 — {{ filename }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px; margin: 0 auto; padding: 40px 24px;
+    color: #1a1a2e; background: #fff; line-height: 1.7;
+  }
+  .header {
+    text-align: center; padding-bottom: 24px; margin-bottom: 32px;
+    border-bottom: 3px solid #2563eb;
+  }
+  .header h1 { font-size: 28px; color: #2563eb; }
+  .header .meta { font-size: 13px; color: #888; margin-top: 8px; }
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 20px; color: #2563eb; margin-bottom: 16px;
+    padding-left: 12px; border-left: 4px solid #2563eb;
+  }
+  .formula-card {
+    display: grid; gap: 12px;
+  }
+  .formula-item {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 16px;
+  }
+  .formula-item .idx {
+    display: inline-block; width: 24px; height: 24px;
+    background: #2563eb; color: #fff; border-radius: 50%;
+    text-align: center; line-height: 24px; font-size: 12px; font-weight: 700;
+    margin-right: 8px;
+  }
+  .formula-item .name { font-weight: 700; font-size: 15px; }
+  .formula-item .math {
+    margin: 10px 0; padding: 14px 16px;
+    background: #fff; border-left: 3px solid #2563eb;
+    font-size: 16px; overflow-x: auto;
+  }
+  /* KaTeX 渲染后的样式微调 */
+  .formula-item .math .katex { font-size: 1.15em; }
+  .formula-item .meaning { font-size: 13px; color: #555; }
+  .point-list { display: grid; gap: 12px; }
+  .point-item {
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 16px;
+  }
+  .point-item .prio { font-size: 12px; margin-right: 8px; }
+  .point-item .topic { font-weight: 700; font-size: 15px; }
+  .point-item .summary { margin: 8px 0; font-size: 14px; color: #333; }
+  .point-item .pitfall {
+    font-size: 13px; color: #dc2626; padding: 8px 12px;
+    background: #fef2f2; border-radius: 6px; margin-top: 8px;
+  }
+  .preview-box {
+    background: #f8fafc; border: 1px dashed #ccc;
+    border-radius: 8px; padding: 16px; font-size: 13px;
+    color: #888; max-height: 300px; overflow-y: auto;
+    white-space: pre-wrap; line-height: 1.6;
+  }
+  .footer {
+    margin-top: 40px; padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center; font-size: 12px; color: #aaa;
+  }
+  @media print {
+    body { padding: 0; }
+    .header { border-bottom-color: #000; }
+    .section-title { border-left-color: #000; }
+    .formula-item .idx { background: #333; }
+    .formula-item .math { border-left-color: #333; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📚 机器学习速查卡</h1>
+  <div class="meta">来源：{{ filename }} &nbsp;|&nbsp; 生成时间：{{ now }}</div>
+</div>
+
+{% if formulas %}
+<div class="section">
+  <h2 class="section-title">📐 公式速查卡</h2>
+  <div class="formula-card">
+    {% for f in formulas %}
+    <div class="formula-item">
+      <div>
+        <span class="idx">{{ loop.index }}</span>
+        <span class="name">{{ f.get("name", "公式") }}</span>
+      </div>
+      <div class="math">$${{ f.get("formula", "") }}$$</div>
+      <div class="meaning">💡 {{ f.get("meaning", "") }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if points %}
+<div class="section">
+  <h2 class="section-title">🎯 考点重点</h2>
+  <div class="point-list">
+    {% for p in points %}
+    <div class="point-item">
+      <div>
+        <span class="prio">{{ p.get("priority", "") }}</span>
+        <span class="topic">{{ p.get("topic", "") }}</span>
+      </div>
+      <div class="summary">{{ p.get("summary", "") }}</div>
+      {% if p.get("pitfall") %}
+      <div class="pitfall">⚠️ 易错提醒：{{ p.get("pitfall") }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if text_preview and not formulas and not points %}
+<div class="section">
+  <h2 class="section-title">📋 识别的文本内容（前 2000 字符）</h2>
+  <div class="preview-box">{{ text_preview }}</div>
+  <p style="margin-top:12px;color:#dc2626;font-size:13px;">
+    ⚠️ AI 解析未生成内容。这通常是因为 DeepSeek 返回的 JSON 格式异常。请重试一次。
+  </p>
+</div>
+{% endif %}
+
+<div class="footer">
+  ML 速查工坊 · 由 AI 生成 · 仅供参考 · 请以课件和教材为准
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "\\(", right: "\\)", display: false}
+      ],
+      throwOnError: false
+    });
+  });
+</script>
+
+</body>
+</html>
