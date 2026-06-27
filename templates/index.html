@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML 速查工坊 — 课件 → 公式卡 + 重点</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- 开场：两步询问 -->
+<div class="onboard-overlay" id="onboardOverlay">
+  <div class="onboard-card" id="onboardCard">
+
+    <!-- Step 1: 掌握程度 -->
+    <div class="onboard-step" id="onboardStep1">
+      <div class="onboard-icon">🎓</div>
+      <h2 class="onboard-title">ML 速查工坊</h2>
+      <p class="onboard-sub">先了解一下你的基础掌握程度</p>
+      <div class="onboard-options">
+        <button class="onboard-btn" data-level="beginner">
+          <span class="onboard-emoji">🌱</span>
+          <span class="onboard-label">我完全没听过这门课</span>
+          <span class="onboard-desc">从零开始，详细解释每一个公式和概念</span>
+        </button>
+        <button class="onboard-btn" data-level="intermediate">
+          <span class="onboard-emoji">🌿</span>
+          <span class="onboard-label">我知道一些基础概念</span>
+          <span class="onboard-desc">有一定基础，侧重考点梳理和易错点</span>
+        </button>
+        <button class="onboard-btn" data-level="god">
+          <span class="onboard-emoji">🔥</span>
+          <span class="onboard-label">I'm GOD</span>
+          <span class="onboard-desc">大佬请进，只给核心公式和高级考点</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: 时间紧迫程度 -->
+    <div class="onboard-step hidden" id="onboardStep2">
+      <div class="onboard-icon">⏰</div>
+      <h2 class="onboard-title">复习时间还剩多少？</h2>
+      <p class="onboard-sub" id="onboardSub2">根据你的时间安排调整复习策略</p>
+      <div class="onboard-options">
+        <button class="onboard-btn" data-urgency="rush">
+          <span class="onboard-emoji">🚨</span>
+          <span class="onboard-label">求你了别问了快点开始吧</span>
+          <span class="onboard-desc">时间紧迫，只给最核心的公式和考点，速战速决</span>
+        </button>
+        <button class="onboard-btn" data-urgency="relaxed">
+          <span class="onboard-emoji">☕</span>
+          <span class="onboard-label">I'm GOD（时间充裕）</span>
+          <span class="onboard-desc">慢慢来，详细讲解，配合例题和拓展知识</span>
+        </button>
+        <button class="onboard-btn" data-urgency="giveup">
+          <span class="onboard-emoji">🦄</span>
+          <span class="onboard-label">老子就挂了怎么着</span>
+          <span class="onboard-desc">爱新觉罗·哟呵复习策略：佛系备考，主打一个陪伴</span>
+        </button>
+      </div>
+      <button class="onboard-back" id="btnOnboardBack">← 返回上一步</button>
+    </div>
+
+  </div>
+</div>
+
+<header class="top-bar">
+  <div class="logo">
+    <span class="logo-icon">📚</span>
+    <span class="logo-text">ML 速查工坊</span>
+  </div>
+  <div class="header-sub" id="headerSub">课件扔进来 → 公式速查卡 + 考点重点</div>
+  <span class="badge-area hidden" id="badgeArea">
+    <span id="masteryBadge" class="mastery-badge"></span>
+    <span id="urgencyBadge" class="urgency-badge"></span>
+    <span class="badge-reset" id="badgeReset" title="重新设置">↻</span>
+  </span>
+  <button class="btn-ghost" id="btnSettings" title="API 设置">⚙️ 设置</button>
+</header>
+
+<main class="layout hidden" id="mainLayout">
+
+  <!-- 左侧：上传区 -->
+  <section class="panel panel-upload" id="uploadPanel">
+    <div class="upload-zone" id="dropZone">
+      <div class="upload-icon">📁</div>
+      <div class="upload-title">拖拽文件到此处</div>
+      <div class="upload-hint">支持 PDF · PPT/PPTX · 图片 · ZIP 压缩包 · 可多选</div>
+      <div class="upload-or">— 或 —</div>
+      <label class="btn-primary btn-upload">
+        <input type="file" id="fileInput" accept=".pdf,.pptx,.ppt,.png,.jpg,.jpeg,.webp,.bmp,.tiff,.zip" multiple hidden>
+        选择文件
+      </label>
+    </div>
+
+    <!-- 文件列表 -->
+    <div class="file-list" id="fileList"></div>
+
+    <!-- 提取状态 -->
+    <div class="status-bar hidden" id="statusBar">
+      <div class="status-text" id="statusText"></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-row hidden" id="actionRow">
+      <button class="btn-primary" id="btnProcess">🤖 AI 解析（公式 + 考点 + 思维导图）</button>
+      <button class="btn-secondary" id="btnReset">↺ 重新上传</button>
+    </div>
+  </section>
+
+  <!-- 右侧：结果展示 -->
+  <section class="panel panel-result hidden" id="resultPanel">
+    <div class="result-tabs">
+      <button class="tab active" data-tab="formulas">📐 公式速查卡</button>
+      <button class="tab" data-tab="points">🎯 考点重点</button>
+      <button class="tab" data-tab="mindmap">🧠 思维导图</button>
+      <button class="tab" data-tab="doc">📄 完整文档</button>
+    </div>
+
+    <div class="result-content">
+      <!-- 公式卡 -->
+      <div class="tab-panel active" id="tab-formulas">
+        <div id="formulasContent"></div>
+      </div>
+
+      <!-- 考点 -->
+      <div class="tab-panel" id="tab-points">
+        <div id="pointsContent"></div>
+      </div>
+
+      <!-- 思维导图 -->
+      <div class="tab-panel" id="tab-mindmap">
+        <div class="mindmap-header hidden" id="mindmapSummary"></div>
+        <div class="mindmap-container" id="mindmapContainer">
+          <div class="doc-preview-empty" id="mindmapEmpty">请上传 ≥2 份课件后，点击「🧠 跨文件分析 + 思维导图」</div>
+        </div>
+      </div>
+
+      <!-- 完整文档 -->
+      <div class="tab-panel" id="tab-doc">
+        <div class="doc-preview" id="docPreview"></div>
+      </div>
+    </div>
+
+    <div class="result-actions hidden" id="resultActions">
+      <button class="btn-primary" id="btnDownload">⬇ 下载文档</button>
+      <button class="btn-secondary" id="btnPrint">🖨 打印</button>
+      <button class="btn-secondary" id="btnMoreDetail">📖 我想要再详细一点</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- 统计雷达图 -->
+<section class="stats-section" id="statsSection">
+  <h2 class="stats-title">📊 选项统计</h2>
+  <!-- <p class="stats-sub">记录每次开场询问的选择次数，帮你了解自己的复习状态分布</p> -->
+  <div class="stats-charts">
+    <div class="stats-chart-box">
+      <h3>🎓 掌握程度分布</h3>
+      <canvas id="chartMastery"></canvas>
+    </div>
+    <div class="stats-chart-box">
+      <h3>⏰ 时间紧迫程度分布</h3>
+      <canvas id="chartUrgency"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- 设置弹窗 -->
+<div class="modal-overlay hidden" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span>⚙️ API 设置</span>
+      <button class="modal-close" id="btnCloseSettings">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label class="field">
+        <span>API 地址</span>
+        <input type="text" id="apiUrl" placeholder="https://api.deepseek.com/v1/chat/completions">
+      </label>
+      <label class="field">
+        <span>API Key</span>
+        <input type="password" id="apiKey" placeholder="sk-...">
+      </label>
+      <label class="field">
+        <span>模型名称</span>
+        <input type="text" id="apiModel" placeholder="gpt-4o" value="gpt-4o">
+      </label>
+      <div class="field-hint">
+        💡 支持任意 OpenAI 兼容接口（OpenAI / DeepSeek / 通义千问 / Moonshot 等）
+      </div>
+      <div class="field-hint">
+        ⚠️ 不填 API Key 则仅提取文本，不调用 AI；可复制文本到 WorkBuddy 手动处理
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" id="btnSaveSettings">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="/static/script.js"></script>
+</body>
+</html>
